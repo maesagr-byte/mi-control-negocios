@@ -2,154 +2,93 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-# 1. Configuración de diseño de la página corporativa
-st.set_page_config(
-    page_title="Punto de Venta e Inventario - Snacks & Granizadas", 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# 1. Configuración principal de la página
+st.set_page_config(page_title="Caja - Snacks y Granizadas", layout="wide", initial_sidebar_state="expanded")
 
-# Estilos visuales personalizados
-st.markdown("""
-    <style>
-    .main-title { font-size:32px; font-weight:bold; color:#2E4053; margin-bottom:20px; }
-    .metric-box { background-color:#F8F9F9; padding:15px; border-radius:10px; border-left:5px solid #5DADE2; }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="main-title">🍓 Sistema de Control Profesional - Antojos & Granizadas</div>', unsafe_allow_html=True)
-
-# 2. Base de Datos en Memoria (Inicialización)
+# 2. Inicialización de la Base de Datos con todos tus productos
 if "inventario" not in st.session_state:
+    # Aquí puedes seguir agregando los sabores de granizadas que falten
     productos_iniciales = [
-        {"Producto": "Granizada Regular", "Categoría": "Granizadas", "Precio Venta (Q)": 15.0, "Existencias": 60},
-        {"Producto": "Granizada Especial (Sabores/Mix)", "Categoría": "Granizadas", "Precio Venta (Q)": 20.0, "Existencias": 45},
-        {"Producto": "Chocobanano", "Categoría": "Frutas con Chocolate", "Precio Venta (Q)": 5.0, "Existencias": 100},
-        {"Producto": "Chocofresa", "Categoría": "Frutas con Chocolate", "Precio Venta (Q)": 8.0, "Existencias": 70},
-        {"Producto": "Frappé", "Categoría": "Bebidas Frías", "Precio Venta (Q)": 18.0, "Existencias": 40},
-        {"Producto": "Crepa Dulce", "Categoría": "Snacks", "Precio Venta (Q)": 25.0, "Existencias": 35},
-        {"Producto": "Agua Pura Botella", "Categoría": "Bebidas", "Precio Venta (Q)": 5.0, "Existencias": 80},
-        {"Producto": "Coca-Cola", "Categoría": "Bebidas", "Precio Venta (Q)": 7.0, "Existencias": 48},
-        {"Producto": "Bandeja de Mango Verde", "Categoría": "Snacks", "Precio Venta (Q)": 12.0, "Existencias": 30}
+        # --- GRANIZADAS ---
+        {"Producto": "Granizada de Limón", "Categoría": "Granizadas", "Precio (Q)": 15.0, "Stock": 50, "Imagen": "https://placehold.co/400x300/f0f4c3/000000?text=Foto+Limon"},
+        {"Producto": "Granizada de Fresa", "Categoría": "Granizadas", "Precio (Q)": 15.0, "Stock": 50, "Imagen": "https://placehold.co/400x300/ffcdd2/000000?text=Foto+Fresa"},
+        {"Producto": "Granizada de Tamarindo", "Categoría": "Granizadas", "Precio (Q)": 15.0, "Stock": 50, "Imagen": "https://placehold.co/400x300/d7ccc8/000000?text=Foto+Tamarindo"},
+        {"Producto": "Granizada de Mango", "Categoría": "Granizadas", "Precio (Q)": 15.0, "Stock": 50, "Imagen": "https://placehold.co/400x300/ffe082/000000?text=Foto+Mango"},
+        {"Producto": "Granizada Especial/Mixta", "Categoría": "Granizadas", "Precio (Q)": 20.0, "Stock": 40, "Imagen": "https://placehold.co/400x300/e1bee7/000000?text=Foto+Mixta"},
+        
+        # --- CHOCO FRUTAS ---
+        {"Producto": "Chocobanano", "Categoría": "Choco Frutas", "Precio (Q)": 5.0, "Stock": 80, "Imagen": "https://placehold.co/400x300/fff9c4/000000?text=Chocobanano"},
+        {"Producto": "Chocofresa", "Categoría": "Choco Frutas", "Precio (Q)": 8.0, "Stock": 60, "Imagen": "https://placehold.co/400x300/ffcdd2/000000?text=Chocofresa"},
+        {"Producto": "Chocosandía", "Categoría": "Choco Frutas", "Precio (Q)": 10.0, "Stock": 30, "Imagen": "https://placehold.co/400x300/c8e6c9/000000?text=Chocosandia"},
+        {"Producto": "Chocococo", "Categoría": "Choco Frutas", "Precio (Q)": 8.0, "Stock": 40, "Imagen": "https://placehold.co/400x300/ffffff/000000?text=Chocococo"},
+        
+        # --- BEBIDAS Y LICUADOS ---
+        {"Producto": "Agua Pura Botella", "Categoría": "Bebidas y Licuados", "Precio (Q)": 5.0, "Stock": 100, "Imagen": "https://placehold.co/400x300/b3e5fc/000000?text=Agua+Pura"},
+        {"Producto": "Coca-Cola Lata", "Categoría": "Bebidas y Licuados", "Precio (Q)": 7.0, "Stock": 60, "Imagen": "https://placehold.co/400x300/ef9a9a/000000?text=Coca+Lata"},
+        {"Producto": "Coca-Cola Botella", "Categoría": "Bebidas y Licuados", "Precio (Q)": 10.0, "Stock": 60, "Imagen": "https://placehold.co/400x300/ef9a9a/000000?text=Coca+Botella"},
+        {"Producto": "Licuado de Frutas", "Categoría": "Bebidas y Licuados", "Precio (Q)": 18.0, "Stock": 40, "Imagen": "https://placehold.co/400x300/f3e5f5/000000?text=Licuado"},
+        
+        # --- SNACKS Y CREPAS ---
+        {"Producto": "Bandeja Mango Verde", "Categoría": "Snacks y Crepas", "Precio (Q)": 12.0, "Stock": 35, "Imagen": "https://placehold.co/400x300/cddc39/000000?text=Mango+Verde"},
+        {"Producto": "Tiras Ácidas", "Categoría": "Snacks y Crepas", "Precio (Q)": 5.0, "Stock": 100, "Imagen": "https://placehold.co/400x300/ffecb3/000000?text=Tiras+Acidas"},
+        {"Producto": "Crepa", "Categoría": "Snacks y Crepas", "Precio (Q)": 25.0, "Stock": 30, "Imagen": "https://placehold.co/400x300/ffe0b2/000000?text=Foto+Crepa"}
     ]
     st.session_state.inventario = pd.DataFrame(productos_iniciales)
 
 if "historial_ventas" not in st.session_state:
-    st.session_state.historial_ventas = pd.DataFrame(columns=["Fecha y Hora", "Producto", "Cantidad", "Precio Unitario (Q)", "Total Recaudado (Q)"])
+    st.session_state.historial_ventas = pd.DataFrame(columns=["Hora", "Producto", "Monto (Q)"])
 
-# 3. Métricas Principales en la barra superior
-total_ventas_Q = st.session_state.historial_ventas["Total Recaudado (Q)"].sum() if not st.session_state.historial_ventas.empty else 0.0
-productos_alerta = st.session_state.inventario[st.session_state.inventario["Existencias"] <= 10]
+# 3. Función oculta que registra la venta
+def registrar_venta(producto, precio):
+    idx = st.session_state.inventario.index[st.session_state.inventario['Producto'] == producto].tolist()[0]
+    if st.session_state.inventario.at[idx, 'Stock'] > 0:
+        st.session_state.inventario.at[idx, 'Stock'] -= 1
+        nueva_venta = {"Hora": datetime.now().strftime("%H:%M:%S"), "Producto": producto, "Monto (Q)": precio}
+        st.session_state.historial_ventas = pd.concat([st.session_state.historial_ventas, pd.DataFrame([nueva_venta])], ignore_index=True)
+        return True
+    return False
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown(f'<div class="metric-box"><h4>💰 Ventas del Día</h4><h2>Q {total_ventas_Q:.2f}</h2></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown(f'<div class="metric-box"><h4>📦 Productos en Menú</h4><h2>{len(st.session_state.inventario)} Items</h2></div>', unsafe_allow_html=True)
-with col3:
-    color_alerta = "#E74C3C" if len(productos_alerta) > 0 else "#2ECC71"
-    st.markdown(f'<div class="metric-box" style="border-left-color:{color_alerta}"><h4>🚨 Alertas de Stock Bajo</h4><h2>{len(productos_alerta)} Productos</h2></div>', unsafe_allow_html=True)
+# 4. Diseño del Menú Lateral (Navegación)
+st.sidebar.title("🍔 Sistema POS")
+st.sidebar.write("Elige la sección:")
+pagina_actual = st.sidebar.radio("", ["🏠 Menú Principal (Caja)", "📦 Inventario", "💰 Ingresos y Ventas"])
 
-st.write("---")
-
-# 4. Creación de las Pestañas de Navegación
-tab1, tab2, tab3 = st.tabs(["🛒 Registrar Ventas (POS)", "📦 Gestión de Inventario y Precios", "📈 Historial y Reportes"])
+# Cálculo de dinero en caja
+dinero_caja = st.session_state.historial_ventas["Monto (Q)"].sum() if not st.session_state.historial_ventas.empty else 0.0
+st.sidebar.markdown("---")
+st.sidebar.success(f"### 💵 Caja Hoy:\n## Q {dinero_caja:.2f}")
 
 # ==========================================
-# PESTAÑA 1: PUNTO DE VENTA (REGISTRAR VENTAS)
+# PANTALLA 1: MENÚ PRINCIPAL (BOTONES CON FOTOS)
 # ==========================================
-with tab1:
-    st.subheader("🛒 Nueva Orden de Venta")
+if pagina_actual == "🏠 Menú Principal (Caja)":
+    st.title("🛒 Caja Registradora")
     
-    col_izq, col_der = st.columns([2, 1])
+    # Separamos los productos en pestañas para no saturar la pantalla
+    tabs = st.tabs(["🍧 Granizadas", "🍫 Choco Frutas", "🥤 Bebidas y Licuados", "🍟 Snacks y Crepas"])
     
-    with col_izq:
-        categorias = ["Todos"] + list(st.session_state.inventario["Categoría"].unique())
-        cat_seleccionada = st.selectbox("Filtrar por tipo de producto:", categorias)
-        
-        if cat_seleccionada == "Todos":
-            df_filtrado = st.session_state.inventario
-        else:
-            df_filtrado = st.session_state.inventario[st.session_state.inventario["Categoría"] == cat_seleccionada]
-            
-        lista_productos = df_filtrado["Producto"].tolist()
-        producto_sel = st.selectbox("Selecciona el producto vendido:", lista_productos)
-        
-        datos_prod = st.session_state.inventario[st.session_state.inventario["Producto"] == producto_sel].iloc[0]
-        precio_actual = datos_prod["Precio Venta (Q)"]
-        stock_actual = datos_prod["Existencias"]
-        
-        st.info(f"💡 **Precio unitario:** Q {precio_actual:.2f} | **Disponibles en inventario:** {stock_actual} unidades")
+    def construir_catalogo(categoria):
+        df_cat = st.session_state.inventario[st.session_state.inventario["Categoría"] == categoria]
+        # Creamos una cuadrícula de 3 columnas
+        cols = st.columns(3)
+        for index, row in df_cat.reset_index().iterrows():
+            with cols[index % 3]:
+                # Contenedor visual para cada tarjeta de producto
+                with st.container():
+                    st.image(row["Imagen"], use_column_width=True)
+                    st.markdown(f"<h5 style='text-align: center;'>{row['Producto']}</h5>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='text-align: center; color: gray; font-size: 14px;'>Stock: {row['Stock']}</p>", unsafe_allow_html=True)
+                    
+                    # Botón grande de venta
+                    if st.button(f"🛒 Cobrar Q {row['Precio (Q)']:.2f}", key=f"btn_{row['Producto']}", use_container_width=True):
+                        if registrar_venta(row['Producto'], row['Precio (Q)']):
+                            st.toast(f"✅ ¡Vendido! 1x {row['Producto']}", icon="💸")
+                            st.rerun() # Actualiza los totales al instante
+                        else:
+                            st.error(f"❌ No hay {row['Producto']} en inventario.")
+                st.write("") # Espacio entre filas
 
-    with col_der:
-        cantidad = st.number_input("Cantidad a vender:", min_value=1, max_value=int(stock_actual) if stock_actual > 0 else 1, value=1, step=1)
-        total_pago = cantidad * precio_actual
-        st.markdown(f"### Total a Cobrar:\n## Q {total_pago:.2f}")
-        
-        btn_cobrar = st.button("🔥 Confirmar y Registrar Venta", use_container_width=True)
-
-    if btn_cobrar:
-        if stock_actual >= cantidad:
-            st.session_state.inventario.loc[st.session_state.inventario["Producto"] == producto_sel, "Existencias"] -= cantidad
-            
-            nueva_venta = {
-                "Fecha y Hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "Producto": producto_sel,
-                "Cantidad": cantidad,
-                "Precio Unitario (Q)": precio_actual,
-                "Total Recaudado (Q)": total_pago
-            }
-            st.session_state.historial_ventas = pd.concat([st.session_state.historial_ventas, pd.DataFrame([nueva_venta])], ignore_index=True)
-            
-            st.success(f"✅ Venta registrada: {cantidad}x {producto_sel} por Q {total_pago:.2f}")
-            st.rerun()
-        else:
-            st.error("❌ ¡Error! No tienes suficientes existencias en el inventario para completar esta venta.")
-
-# ==========================================
-# PESTAÑA 2: GESTIÓN DE INVENTARIO Y PRECIOS
-# ==========================================
-with tab2:
-    st.subheader("📦 Panel de Control de Inventario")
-    st.write("Puedes editar los precios o agregar stock directamente haciendo doble clic sobre las celdas de la tabla de abajo:")
-    
-    inventario_editado = st.data_editor(
-        st.session_state.inventario,
-        column_config={
-            "Producto": st.column_config.TextColumn("Nombre del Producto", disabled=True),
-            "Categoría": st.column_config.SelectboxColumn("Categoría", options=["Granizadas", "Frutas con Chocolate", "Bebidas Frías", "Snacks", "Bebidas"]),
-            "Precio Venta (Q)": st.column_config.NumberColumn("Precio Público (Q)", min_value=0.0, format="Q %.2f"),
-            "Existencias": st.column_config.NumberColumn("Unidades Disponibles", min_value=0, step=1)
-        },
-        use_container_width=True,
-        num_rows="dynamic"
-    )
-    
-    if st.button("💾 Guardar Cambios Manuales de Inventario/Precios"):
-        st.session_state.inventario = inventario_editado
-        st.success("✅ El inventario y la lista de precios han sido actualizados de forma segura.")
-        st.rerun()
-
-    if len(productos_alerta) > 0:
-        st.warning("⚠️ **¡Productos próximos a agotarse! Necesitas reabastecer:**")
-        st.dataframe(productos_alerta[["Producto", "Existencias"]], use_container_width=True, hide_index=True)
-
-# ==========================================
-# PESTAÑA 3: HISTORIAL Y REPORTES
-# ==========================================
-with tab3:
-    st.subheader("📈 Auditoría e Historial General de Ventas")
-    
-    if st.session_state.historial_ventas.empty:
-        st.info("Aún no se han registrado transacciones comerciales en este turno.")
-    else:
-        st.dataframe(st.session_state.historial_ventas.iloc[::-1], use_container_width=True, hide_index=True)
-        
-        csv_data = st.session_state.historial_ventas.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Descargar Reporte Financiero (CSV)",
-            data=csv_data,
-            file_name=f"reporte_ventas_{datetime.now().strftime('%d_%m_%Y')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+    with tabs[0]: construir_catalogo("Granizadas")
+    with tabs[1]: construir_catalogo("Choco Frutas")
+    with tabs[2]: construir_catalogo("Bebidas y Licuados")
+    with tabs[3]: construir_catalogo("Snacks
